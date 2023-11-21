@@ -1,3 +1,6 @@
+use std::io;
+use std::process;
+
 const BOARD_SIZE: usize = 15;
 
 struct Board {
@@ -64,23 +67,63 @@ impl Board {
         return s;
     }
 
-    fn check_for_winner(&mut self) {
-        for row in self.board {
+    fn check_for_winner(&mut self) -> Option<Player>{
+        let mut oneinrow: u8 = 0;
+        let mut twoinrow: u8 = 0;
+
+        //check horizontal
+        for row in self.board {  
             for field in row {
-                println!("{:?}", field);
+                match field {
+                    None => {
+                        oneinrow = 0;
+                        twoinrow = 0;
+                    }
+                    Some(Player::Player1) => {
+                        oneinrow += 1;
+                        twoinrow = 0;
+                    }
+                    Some(Player::Player2) => {
+                        oneinrow = 0;
+                        twoinrow += 1;
+                    }
+                }
+                if oneinrow >= 5 {return Some(Player::Player1);}
+                if twoinrow >= 5 {return Some(Player::Player2);}
             }
+            oneinrow = 0;
+            twoinrow = 0;
         }
+        
+        return None
+    }
+}
+
+fn read_user_input() -> usize {
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read line");
+    return input.trim().parse().expect("Input is not a valid number");
+}
+
+fn play_on_one_device() {
+    let mut board = Board::new(Player::Player1);
+    loop {
+        println!("Enter row number: ");
+        let row: usize = read_user_input();
+        println!("Enter col number: ");
+        let col: usize = read_user_input();
+
+        board.make_move(row, col, board.to_move).expect("Move making failed: ");
+        let winner = board.check_for_winner();
+        match winner {
+            None => {}
+            Some(Player::Player1) => {println!("Player 1 won");process::exit(1)}
+            Some(Player::Player2) => {println!("Player 2 won");process::exit(0)}
+        }
+        println!("{}", board.repr());
     }
 }
 
 fn main() {
-    let player1 = Player::Player1;
-    let player2 = Player::Player2;
-    let mut board = Board::new(player1);
-    board.make_move(10, 5, board.to_move).expect("Move making failed: ");
-    println!("{}", board.repr());
-    board.make_move(11, 5, board.to_move).expect("Move making failed: ");
-    println!("{}", board.repr());
-    board.undo_move();
-    println!("{}", board.repr());
+    play_on_one_device();
 }
