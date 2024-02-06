@@ -2,7 +2,7 @@ fn main() {
     let mut game = Game::new();
     let success = game.play((1, 1));
     println!("success: {}", success);
-    println!("Board: \n {:?}", game.board)
+    println!("{}", game.to_str())
 }
 
 #[derive(Copy, Clone)]
@@ -10,6 +10,22 @@ fn main() {
 enum Field {
     Player(Player),
     Empty,
+}
+
+impl Field {
+    fn to_str(&self) -> &str {
+        match self {
+            Field::Player(Player::Player1) => {
+                return "X";
+            }
+            Field::Player(Player::Player2) => {
+                return "O";
+            }
+            Field::Empty =>  {
+                return  " ";
+            }
+        }
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -44,6 +60,18 @@ impl Game {
                 return true;
             }
         }
+    }
+    fn to_str(&self) -> String {
+        let mut s = String::new();
+        for row in self.board {
+            s += "|";
+            for field in row {
+                s += field.to_str();
+                s += "|";
+            }
+            s += "\n";
+        }
+        s
     }
     fn new() -> Game {
         Game {
