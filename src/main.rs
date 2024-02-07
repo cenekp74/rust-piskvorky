@@ -127,6 +127,97 @@ impl Game {
             p1_in_row = 0;
             p2_in_row = 0;
         }
+        p1_in_row = 0;
+        p2_in_row = 0;
+        //vertical
+        for coln in 0..15 {
+            for rown in 0..15 {
+                let field = self.board[rown][coln];
+                match field {
+                    Field::Player(Player::Player1) => {
+                        p1_in_row += 1;
+                        p2_in_row = 0;
+                    }
+                    Field::Player(Player::Player2) => {
+                        p2_in_row += 1;
+                        p1_in_row = 0;
+                    }
+                    Field::Empty => {
+                        p1_in_row = 0;
+                        p2_in_row = 0;
+                    }
+                }
+                if p1_in_row >= 5 {
+                    return Some(Player::Player1);
+                } else if p2_in_row >=5 {
+                    return Some(Player::Player2);
+                }
+            }
+        }
+        p1_in_row = 0;
+        p2_in_row = 0;
+        //diagonal
+        for rown in 0..15 {
+            for coln in 0..15 {
+                // top left to bottom right
+                for i in 0..15 {
+                    if !(rown+i < 15 && coln+i < 15) {
+                        break;
+                    }
+                    let field = self.board[rown+i][coln+i];
+                    match field {
+                        Field::Player(Player::Player1) => {
+                            p1_in_row += 1;
+                            p2_in_row = 0;
+                        }
+                        Field::Player(Player::Player2) => {
+                            p2_in_row += 1;
+                            p1_in_row = 0;
+                        }
+                        Field::Empty => {
+                            p1_in_row = 0;
+                            p2_in_row = 0;
+                        }
+                    }
+                    if p1_in_row >= 5 {
+                        return Some(Player::Player1);
+                    } else if p2_in_row >=5 {
+                        return Some(Player::Player2);
+                    }
+                }
+                p1_in_row = 0;
+                p2_in_row = 0;
+                // top right to bottom left
+                for i in 0..15 {
+                    if !(rown + i < 15 && (coln as i32) - i as i32 >= 0) {
+                        break;
+                    }
+
+                    let field = self.board[rown+i][coln-i];
+                    match field {
+                        Field::Player(Player::Player1) => {
+                            p1_in_row += 1;
+                            p2_in_row = 0;
+                        }
+                        Field::Player(Player::Player2) => {
+                            p2_in_row += 1;
+                            p1_in_row = 0;
+                        }
+                        Field::Empty => {
+                            p1_in_row = 0;
+                            p2_in_row = 0;
+                        }
+                    }
+                    if p1_in_row >= 5 {
+                        return Some(Player::Player1);
+                    } else if p2_in_row >=5 {
+                        return Some(Player::Player2);
+                    }
+                }
+                p1_in_row = 0;
+                p2_in_row = 0;
+            }
+        }
         None
     }
     fn new() -> Game {
